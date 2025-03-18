@@ -59,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _setOutput(PointerEvent event) => setState(() {
         output =
-            "${event.runtimeType}: ${event.kind} with id ${event.pointer} down at ${event.position} with pressure ${event.pressure} and orientation ${event.orientation} and pressure ${event.pressure}";
+            "${event.runtimeType}: ${event.kind} with id ${event.pointer} down at ${event.position} with pressure ${event.pressure} (${event.pressureMin}/${event.pressureMax}) and rotation ${event.orientation}";
       });
 
   @override
