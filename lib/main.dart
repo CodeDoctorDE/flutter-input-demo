@@ -55,11 +55,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String output = "Not recognized";
+  PointerEvent? _lastEvent;
 
   void _setOutput(PointerEvent event) => setState(() {
-        output =
-            "${event.runtimeType}: ${event.kind} with id ${event.pointer} down at ${event.position} with pressure ${event.pressure} (${event.pressureMin}/${event.pressureMax}) with rotation ${event.orientation} and with buttons pressed: ${event.buttons}";
+        _lastEvent = event;
       });
 
   @override
@@ -71,9 +70,55 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Stack(
         children: [
-          Center(
-            child: Text(output),
-          ),
+          _lastEvent == null
+              ? const Center(
+                  child: Text("Not recognized",
+                      style: TextStyle(fontSize: 20, color: Colors.grey)))
+              : Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              "Event: ${_lastEvent!.runtimeType}",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary),
+                              textAlign: TextAlign.center,
+                            ),
+                            const Divider(height: 32),
+                            _buildInfoRow("Kind", _lastEvent!.kind.name),
+                            _buildInfoRow(
+                                "Pointer ID", _lastEvent!.pointer.toString()),
+                            _buildInfoRow("Position",
+                                "(${_lastEvent!.position.dx.toStringAsFixed(1)}, ${_lastEvent!.position.dy.toStringAsFixed(1)})"),
+                            _buildInfoRow("Pressure",
+                                "${_lastEvent!.pressure.toStringAsFixed(2)} (Min: ${_lastEvent!.pressureMin.toStringAsFixed(2)} / Max: ${_lastEvent!.pressureMax.toStringAsFixed(2)})"),
+                            _buildInfoRow("Orientation",
+                                _lastEvent!.orientation.toStringAsFixed(2)),
+                            _buildInfoRow("Buttons value",
+                                _lastEvent!.buttons.toString()),
+                            _buildInfoRow("Button bitmap",
+                                "0b${_lastEvent!.buttons.toRadixString(2).padLeft(8, '0')}"),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
           Listener(
             onPointerDown: _setOutput,
             onPointerMove: _setOutput,
@@ -81,6 +126,29 @@ class _MyHomePageState extends State<MyHomePage> {
             onPointerCancel: _setOutput,
             behavior: HitTestBehavior.opaque,
             child: const SizedBox.expand(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: const TextStyle(fontSize: 16, fontFamily: 'monospace'),
+            ),
           ),
         ],
       ),
